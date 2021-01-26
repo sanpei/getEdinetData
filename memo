@@ -1,0 +1,60 @@
+Todo
+
+・目的
+・・CAN-SLIMにの指標でファンダメンタル分析ができるようにする
+
+・運用イメージ
+・・settingsファイルに各指標の値を埋め込み、編集しそれが表示できるようにする
+・・・将来的にはそれをWEBでできるようにする。
+
+・各指標（CAN-SLIM)ベース
+・・C:EPSを前年度同期比で比較する（伸び率は25~30%？ここは変更できるように）
+     直近四半期の売上高の増加率も（伸び率は25%以上)　直近3四半期で加速していることが最低条件
+・・・特別利益が過大な場合を考慮できるか？
+・・A:年間EPSの増加率(25~50%)
+     ROEの高い銘柄（最低17%)
+     一株あたりのキャッシュシュロー
+     EPSの安定性(３年間平均）
+     ・EPSの増加率：１９％
+     ・PER15倍
+     ・・5年間のPERのはば
+     ・ROE29%
+     ・キャッシュフロー4.85$
+・・N:新製品
+・・S:Supply and Demand
+・・L:Leader Ship
+・・I:機関投資家の保有
+・・M:マーケット動向
+
+・・ここから必要
+・・・直近四半期のデータ、前年四半期のデータ、当期データ、前期データ、前々期データ
+
+・設計
+・・Queryのたびにデータを取ってくるのではなく、一度出力したデータはデータベースに貯めておき、
+・・次回の出力時には、データベースからselectできるようにしておく
+
+・テーブル構造は以下を想定
+・・四半期用のテーブル(quarter)
+・・フィールドリスト(*主キー)
+・・・EDINETコード：edinet_code *
+・・・年度開始日：start_period *
+・・・年度終了日：end_period *
+・・・会社名：company_name
+・・・提出書類：submit_paper
+・・・提出日；submit_date
+・・・発行済み株式数：shared_num
+・・・営業CF：operating_cash
+・・・財務CF：financial_cash
+・・・投資CF：investment_cash
+・・・純利益：net_income
+・・・売上高：sales_amt
+・・・BS 現金預金：bs_cash_amt_ttl
+・・・BS 負債合計：bs_liabilities_amt_ttl
+・・・証券コード：securities_code
+・・・業種：industry
+・・・訂正：revision
+・・・file_name
+
+・・年間テーブル(annual)
+
+
