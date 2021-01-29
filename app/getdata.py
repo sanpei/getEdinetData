@@ -48,10 +48,12 @@ def make_sample_data_csv(egg_file_name, edinet_code):
         logger.info(f'{edinet_code} is none')
 
 class Eggs_Operator(object):
-    def __init__(self, result_file_name='com_indices.csv'):
+    def __init__(self, list_df_eggs , result_file_name=f'com_indices{settings.since}.csv'):
         self.base_path = os.getcwd()
         self.result_file_name = result_file_name
-        self.list_df_eggs = [pd.read_csv(os.path.join(self.base_path, egg_file_name)).drop_duplicates() for egg_file_name in self.get_list_eggs()]
+        # self.list_df_eggs = [pd.read_csv(os.path.join(self.base_path, egg_file_name)).drop_duplicates()
+        # for egg_file_name in self.get_list_eggs()]
+        self.list_df_eggs = [list_df_eggs.drop_duplicates()]
         self.dict_codes = get_dict_code()
         self.dict_cols = settings.dict_cols
 
@@ -104,12 +106,12 @@ class Eggs_Operator(object):
                 data['訂正'] = 1 if '訂正' in data['提出書類'] else 0
                 data['file_name'] = file_name
                 data['edinet_code'] = edinet_code
+                data['annual'] = 'T' if utils.get_yuho_text(f'{data["提出書類"]}{data["会社名"]}') else 'F'
 
-                #ここでFinancialをCreateする
                 Financial.create(dict_result=data)
 
                 raw = pd.DataFrame(data, index=[edinet_code])
                 com_indices = pd.concat([com_indices, raw])
 
 
-        com_indices.to_csv(os.path.join(self.base_path, self.result_file_name))
+        # com_indices.to_csv(os.path.join(self.base_path, self.result_file_name))

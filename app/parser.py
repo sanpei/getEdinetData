@@ -4,6 +4,8 @@ import csv
 from xbrl import XBRLParser
 import logging
 
+import pandas as pd
+
 import settings
 import utils
 
@@ -64,9 +66,10 @@ class xbrlParser(object):
         return result_dicts
 
 class Parser_Operator(object):
-    def __init__(self):
+    def __init__(self, dict_result):
         self.list_dat_csv = self.__get_file_list()
         self.base_path = utils.get_base_path()
+        self.dict_result = dict_result
 
     def __get_file_list(self):
         file_list = []
@@ -91,26 +94,35 @@ class Parser_Operator(object):
         if 'xbrl_files_' + str_period in str(root_path):
             return True
 
-    def __dump_file(self, writer, info_dicts):
+
+    # def __dump_file(self, writer, info_dicts):
+    #     i = 0
+    #     while i < (len(info_dicts)):
+    #         row_dict = info_dicts[i]
+    #         writer.writerow(row_dict)
+    #         i += 1
+
+    def create_pandas_data(self, info_dicts):
+        result_elements = pd.DataFrame(default_tag.append(custom_tag))
         i = 0
-        while i < (len(info_dicts)):
-            row_dict = info_dicts[i]
-            writer.writerow(row_dict)
+        while i < len(info_dicts):
+            row_dict = pd.DataFrame(info_dicts[i].values(), index=info_dicts[i].keys()).T
+            result_elements = result_elements.append(row_dict,ignore_index=True)
             i += 1
+        return result_elements
+
 
     def xbrl_to_csv(self):
 
-        utils.delete_file(self.base_path, settings.eggs_file_name)
+        if not self.dict_result:
+            return
 
-        for dat_csv in self.list_dat_csv:
-            str_period = dat_csv.replace(".csv", "").replace(settings.download_file_name, "")
-            eggs_file = f'{settings.eggs_file_name}{str_period}.csv'
-            search_path = f'{self.base_path}/{settings.xbrl_dir_name}{str_period}/'
-            with open(os.path.join(self.base_path, eggs_file), 'w', encoding=settings.encode_type) as of:
-                resultCsvWriter = csv.DictWriter(of, default_tag+custom_tag, lineterminator='\n')
-                resultCsvWriter.writeheader()
-                list_xbrl_files = self.__find_all_files(search_path, str_period)
-                for xbrl_file in list_xbrl_files:
-                    xp = xbrlParser(xbrl_file)
-                    info_dicts = xp.parse_xbrl()
-                    self.__dump_file(resultCsvWriter, info_dicts)
+        all_results = pd.DataFrame(default_tag.append(custom_tag))
+
+        search_path = f'{self.base_path}/{settings.xbrl_dir_name}{settings.since}/'
+        list_xbrl_files = self.__find_all_files(search_path, settings.since)
+        for xbrl_file in list_xbrl_files:
+            xp = xbrlParser(xbrl_file)
+            info_dicts = xp.parse_xbrl()
+            all_results = all_results.append(self.create_pandas_data(info_dicts), ignore_index=False)
+        return all_results

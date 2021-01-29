@@ -18,8 +18,9 @@ class Downloader(object):
         XBRLファイルを一括ダウンロード
     '''
 
-    def __init__(self):
+    def __init__(self, dict_result):
         self.base_path = os.getcwd()
+        self.dict_result = dict_result
 
     def __get_file_list(self):
         file_list = []
@@ -71,13 +72,11 @@ class Downloader(object):
 
         utils.delete_dir(self.base_path)
 
-        list_dat_csv = self.__get_file_list()
-        if not list_dat_csv:
+        if not self.dict_result:
             return
 
-        for dat_csv in list_dat_csv:
-            info_df = pd.read_csv(os.path.join(self.base_path, dat_csv), parse_dates=['update'])
-            if len(info_df) > 0:
-                dir_path = f'{self.base_path}/{settings.xbrl_dir_name}{dat_csv.replace(".csv","").replace(settings.download_file_name,"")}/'
-                self.__make_directory(dir_path)
-                self.__download_all_xbrl_files(info_df, dir_path)
+        info_df = pd.DataFrame(self.dict_result.values(), index=self.dict_result.keys())
+        if len(info_df) > 0:
+            dir_path = f'{self.base_path}/{settings.xbrl_dir_name}{settings.since}/'
+            self.__make_directory(dir_path)
+            self.__download_all_xbrl_files(info_df, dir_path)

@@ -27,14 +27,10 @@ class Catcher(object):
         urllib3.disable_warnings(InsecureRequestWarning)
 
     def get_yuho_text(self, title):
-        if all((s in str(title)) for s in ['有価証券報告書', '株式会社']) and '受益証券' not in str(title):
-            return True
-        return False
+        return utils.get_yuho_text(title)
 
     def get_shihanki_text(self, title):
-        if all((s in str(title)) for s in ['四半期', '株式会社']) and '受益証券' not in str(title):
-            return True
-        return False
+        return utils.get_shihanki_text(title)
 
     def get_link_info_str(self, str_date):
 
@@ -62,10 +58,7 @@ class Catcher(object):
 
             title = f'{target_dict["filerName"]} {target_dict["docDescription"]}'
 
-            # if not self.get_yuho_text(title):
-            #     continue
-
-            if not self.get_shihanki_text(title):
+            if not self.get_yuho_text(title) and not self.get_shihanki_text(title):
                 continue
 
             docID = target_dict['docID']
@@ -74,6 +67,7 @@ class Catcher(object):
             updated = target_dict['submitDateTime']
             period_start = target_dict['periodStart']
             period_end = target_dict['periodEnd']
+
             edinet_dict[docID] = {'id': docID, 'title': title, 'url': id_url, 'code': edinet_code, 'update': updated,
                                   'period_start': period_start, 'period_end': period_end}
 
@@ -119,5 +113,8 @@ class Catcher(object):
             if target_date >= utils.str_to_date(settings.until):
                 break
 
-        utils.delete_file(self.base_path, settings.download_file_name)
-        self.dump_file(result_dict)
+        return result_dict
+
+        #ここはあってもいいかも
+        # utils.delete_file(self.base_path, settings.download_file_name)
+        # self.dump_file(result_dict)
